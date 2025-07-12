@@ -1,12 +1,48 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import { Header } from "@/components/Header";
+import { WelcomeSection } from "@/components/WelcomeSection";
+import { EventCreator } from "@/components/EventCreator";
+import { CountdownPreview } from "@/components/CountdownPreview";
+import { ActivationModal } from "@/components/ActivationModal";
+import { Event } from "@/types/event";
 
 const Index = () => {
+  const [currentEvent, setCurrentEvent] = useState<Event | null>(null);
+  const [showActivation, setShowActivation] = useState(false);
+
+  const handleEventCreate = (event: Event) => {
+    setCurrentEvent(event);
+  };
+
+  const handleShareEvent = () => {
+    setShowActivation(true);
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-gradient-gentle">
+      <Header />
+      
+      <main className="container mx-auto px-4 py-8">
+        {!currentEvent ? (
+          <>
+            <WelcomeSection />
+            <EventCreator onEventCreate={handleEventCreate} />
+          </>
+        ) : (
+          <CountdownPreview 
+            event={currentEvent} 
+            onShare={handleShareEvent}
+            onEdit={() => setCurrentEvent(null)}
+          />
+        )}
+      </main>
+
+      {showActivation && (
+        <ActivationModal 
+          event={currentEvent}
+          onClose={() => setShowActivation(false)}
+        />
+      )}
     </div>
   );
 };
