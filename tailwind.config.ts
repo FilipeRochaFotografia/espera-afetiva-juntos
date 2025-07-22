@@ -69,7 +69,10 @@ export default {
 				'gradient-sunset': 'var(--gradient-sunset)',
 				'gradient-baby': 'var(--gradient-baby)',
 				'gradient-travel': 'var(--gradient-travel)',
-				'gradient-gentle': 'var(--gradient-gentle)'
+				'gradient-gentle': 'var(--gradient-gentle)',
+				'gradient-purple': 'var(--gradient-purple)',
+				'gradient-lavender': 'var(--gradient-lavender)',
+				'gradient-subtle': 'var(--gradient-subtle)'
 			},
 			boxShadow: {
 				'soft': 'var(--shadow-soft)',
