@@ -13,6 +13,7 @@ import UnlockEvent from "./pages/UnlockEvent";
 import Dashboard from "./pages/Dashboard";
 import AccessByPin from "./pages/AccessByPin";
 import ChooseAction from "./pages/ChooseAction";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -26,12 +27,35 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/criar" element={<CreateEvent />} />
-          <Route path="/editar/:id" element={<EditEvent />} />
-          <Route path="/desbloquear/:id" element={<UnlockEvent />} />
-          <Route path="/dashboard/:id" element={<Dashboard />} />
           <Route path="/acessar-pin" element={<AccessByPin />} />
-          <Route path="/escolher-acao" element={<ChooseAction />} />
+          
+          {/* Rotas protegidas */}
+          <Route path="/criar" element={
+            <ProtectedRoute>
+              <CreateEvent />
+            </ProtectedRoute>
+          } />
+          <Route path="/editar/:id" element={
+            <ProtectedRoute>
+              <EditEvent />
+            </ProtectedRoute>
+          } />
+          <Route path="/desbloquear/:id" element={
+            <ProtectedRoute>
+              <UnlockEvent />
+            </ProtectedRoute>
+          } />
+          <Route path="/dashboard/:id" element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/escolher-acao" element={
+            <ProtectedRoute>
+              <ChooseAction />
+            </ProtectedRoute>
+          } />
+          
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

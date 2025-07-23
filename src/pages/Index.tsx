@@ -2,9 +2,66 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Hourglass, Clock, Users } from "lucide-react";
+import { useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/lib/supabase";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
+
+  // Verificar se usuário já está logado e redirecionar
+  useEffect(() => {
+    if (!loading && user) {
+      // Usuário está logado, verificar se tem eventos
+      const checkUserEvents = async () => {
+        try {
+          const { data: eventsData } = await supabase
+            .from('events')
+            .select('id, name, is_active')
+            .eq('created_by', user.id)
+            .order('created_at', { ascending: false });
+          
+          if (eventsData && eventsData.length > 0) {
+            // Usuário tem eventos, ir para dashboard do evento mais recente
+            const latestEvent = eventsData[0];
+            navigate(`/dashboard/${latestEvent.id}`);
+          } else {
+            // Usuário não tem eventos, ir para página de escolha
+            navigate('/escolher-acao');
+          }
+        } catch (error) {
+          console.error('Erro ao verificar eventos:', error);
+          // Em caso de erro, ir para página de escolha
+          navigate('/escolher-acao');
+        }
+      };
+
+      checkUserEvents();
+    }
+  }, [user, loading, navigate]);
+
+  // Mostrar loading enquanto verifica autenticação
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden">
+        {/* Background com ampulheta */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-5"
+          style={{ backgroundImage: 'url(/ampulheta.png)' }}
+        />
+        
+        {/* Gradiente de fundo */}
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-lavender-100 to-purple-200" />
+        
+        {/* Loading */}
+        <div className="relative z-10 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Verificando autenticação...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden">
