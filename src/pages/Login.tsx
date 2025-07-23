@@ -107,8 +107,8 @@ export default function Login() {
           }, 1000); // Aguardar 1 segundo para o trigger executar
         }
         
-        // Para novos usuários, sempre ir para criar evento
-        navigate("/criar");
+        // Para novos usuários, ir para página de escolha
+        navigate("/escolher-acao");
       }
     } else {
       // Fazer login

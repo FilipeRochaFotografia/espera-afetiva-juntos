@@ -57,8 +57,11 @@ export default function CreateEvent() {
           const forceCreate = localStorage.getItem("forceCreate");
           console.log('Force create flag:', forceCreate);
           
-          if (data.length > 0 && !forceCreate) {
-            // Usuário tem eventos e não está forçando criação
+          // Verificar se veio da página de escolha
+          const fromChooseAction = sessionStorage.getItem("fromChooseAction");
+          
+          if (data.length > 0 && !forceCreate && !fromChooseAction) {
+            // Usuário tem eventos e não está forçando criação nem veio da escolha
             const latestEvent = data[0];
             console.log('Redirecionando para dashboard:', latestEvent.id);
             navigate(`/dashboard/${latestEvent.id}`);
@@ -132,6 +135,8 @@ export default function CreateEvent() {
 
   const handleEventCreate = (event: Event) => {
     setCreatedEvent(event);
+    // Limpar flag de escolha após criar evento
+    sessionStorage.removeItem("fromChooseAction");
   };
 
   const handleLogout = async () => {
