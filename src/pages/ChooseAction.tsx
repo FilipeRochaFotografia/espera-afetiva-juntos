@@ -46,114 +46,95 @@ export default function ChooseAction() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-6">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-2xl font-bold text-gray-900">
-            {hasEvents ? "O que você gostaria de fazer?" : "Bem-vindo ao Momentos! 🎉"}
-          </h1>
-          <p className="text-gray-600">
-            {hasEvents 
-              ? "Escolha uma das opções abaixo" 
-              : "O que você gostaria de fazer agora?"
-            }
-          </p>
-        </div>
+    <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden">
+      {/* Background com ampulheta */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-5"
+        style={{ backgroundImage: 'url(/ampulheta.png)' }}
+      />
+      
+      {/* Gradiente de fundo */}
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-lavender-100 to-purple-200" />
+      
+      {/* Card principal */}
+      <div className="relative z-10 w-full max-w-md mx-auto px-6">
+        <Card className="bg-white/95 backdrop-blur-sm border border-purple-100/50 shadow-xl rounded-3xl overflow-hidden">
+          <CardContent className="p-8 text-center">
+            {/* Ícone/Ilustração central */}
+            <div className="relative mb-6">
+              <div className="w-16 h-16 mx-auto bg-gradient-to-br from-purple-400 via-lavender-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
+                <Plus className="w-8 h-8 text-white" />
+              </div>
+              {/* Aura/glow effect */}
+              <div className="absolute inset-0 w-16 h-16 mx-auto bg-gradient-to-br from-purple-400/30 via-lavender-500/30 to-purple-600/30 rounded-full blur-xl animate-pulse"></div>
+            </div>
 
-        {/* Action Cards */}
-        <div className="space-y-4">
-          {/* Manage Events Card - Only show if user has events */}
-          {hasEvents && (
-            <Card className="border-2 border-green-200 hover:border-green-300 transition-all duration-300 hover:shadow-lg">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-3 text-lg">
-                  <div className="p-2 bg-green-100 rounded-lg">
-                    <Calendar className="h-5 w-5 text-green-600" />
-                  </div>
-                  Gerenciar meus eventos
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <p className="text-gray-600 text-sm mb-4">
-                  Acesse e gerencie seus eventos existentes
-                </p>
+            {/* Título principal */}
+            <h1 className="text-2xl font-bold mb-2 text-purple-800">
+              {hasEvents ? "O que você gostaria de fazer?" : "Bem-vindo ao WeCount! 🎉"}
+            </h1>
+            
+            {/* Descrição */}
+            <p className="text-gray-600 mb-6 leading-relaxed">
+              {hasEvents 
+                ? "Escolha uma das opções abaixo" 
+                : "O que você gostaria de fazer agora?"
+              }
+            </p>
+
+            {/* Action Buttons */}
+            <div className="space-y-4">
+              {/* Manage Events Button - Only show if user has events */}
+              {hasEvents && (
                 <Button 
                   onClick={() => {
                     localStorage.setItem("forceCreate", "true");
                     navigate("/criar");
                   }}
                   variant="outline"
-                  className="w-full border-green-300 text-green-700 hover:bg-green-50"
+                  className="w-full py-4 border-green-300 text-green-700 hover:bg-green-50 rounded-xl font-semibold"
                 >
-                  Gerenciar Eventos
+                  <Calendar className="w-5 h-5 mr-3" />
+                  Gerenciar meus eventos
                 </Button>
-              </CardContent>
-            </Card>
-          )}
+              )}
 
-          {/* Create Event Card */}
-          <Card className="border-2 border-purple-200 hover:border-purple-300 transition-all duration-300 hover:shadow-lg">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-3 text-lg">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <Plus className="h-5 w-5 text-purple-600" />
-                </div>
-                {hasEvents ? "Criar novo evento" : "Criar meu evento"}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <p className="text-gray-600 text-sm mb-4">
-                Crie uma contagem regressiva especial e compartilhe com quem você ama
-              </p>
+              {/* Create Event Button */}
               <Button 
                 onClick={() => {
                   sessionStorage.setItem("fromChooseAction", "true");
                   navigate("/criar");
                 }}
-                className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white"
+                className="w-full py-4 rounded-xl bg-gradient-to-br from-purple-400 via-lavender-500 to-purple-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
               >
+                <Plus className="w-5 h-5 mr-3" />
                 {hasEvents ? "Criar Novo Evento" : "Criar Evento"}
               </Button>
-            </CardContent>
-          </Card>
 
-          {/* Join Event Card */}
-          <Card className="border-2 border-blue-200 hover:border-blue-300 transition-all duration-300 hover:shadow-lg">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-3 text-lg">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Key className="h-5 w-5 text-blue-600" />
-                </div>
-                Entrar em um evento
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <p className="text-gray-600 text-sm mb-4">
-                Use um PIN para acessar um evento compartilhado com você
-              </p>
+              {/* Join Event Button */}
               <Button 
                 onClick={() => navigate("/acessar-pin")}
                 variant="outline"
-                className="w-full border-blue-300 text-blue-700 hover:bg-blue-50"
+                className="w-full py-4 border-blue-300 text-blue-700 hover:bg-blue-50 rounded-xl font-semibold"
               >
+                <Key className="w-5 h-5 mr-3" />
                 Acessar com PIN
               </Button>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
 
-        {/* Back to Login */}
-        <div className="text-center">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate("/login")}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Voltar ao login
-          </Button>
-        </div>
+            {/* Back to Login */}
+            <div className="mt-6 pt-4 border-t border-gray-200">
+              <Button 
+                variant="ghost" 
+                onClick={() => navigate("/login")}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Voltar ao login
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
