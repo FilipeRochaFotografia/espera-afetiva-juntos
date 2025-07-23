@@ -6,7 +6,8 @@ import { Card } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Event } from "../types/event";
 import { supabase } from "../lib/supabase";
-import { Settings, List, Share, MessageCircle, Send, Copy, Plus, User, X } from "lucide-react";
+import { Settings, List, Share, MessageCircle, Send, Copy, Plus, User, X, Key } from "lucide-react";
+import ShareModal from "@/components/ShareModal";
 import { useToast } from "../hooks/use-toast";
 
 const Dashboard: React.FC = () => {
@@ -16,7 +17,7 @@ const Dashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<{ name?: string; email: string } | null>(null);
   const [showConfig, setShowConfig] = useState(false);
-  const [showShareOptions, setShowShareOptions] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
   const [showAddToMural, setShowAddToMural] = useState(false);
   const [showManageEvents, setShowManageEvents] = useState(false);
   const navigate = useNavigate();
@@ -66,7 +67,7 @@ const Dashboard: React.FC = () => {
     if (event && !event.is_active) {
       navigate(`/desbloquear/${event.id}`);
     } else if (event) {
-      setShowShareOptions(!showShareOptions);
+      setShowShareModal(true);
     }
   };
 
@@ -76,47 +77,7 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const shareNative = async () => {
-    if (navigator.share && event) {
-      try {
-        await navigator.share({
-          title: event.name,
-          text: `Contando os dias para: ${event.name} ${event.emoji}`,
-          url: window.location.href
-        });
-      } catch (error) {
-        console.log('Erro ao compartilhar:', error);
-      }
-    } else {
-      fallbackShare();
-    }
-  };
 
-  const fallbackShare = () => {
-    const url = window.location.href;
-    const text = `Contando os dias para: ${event?.name} ${event?.emoji}`;
-    
-    navigator.clipboard.writeText(`${text}\n${url}`).then(() => {
-      toast({
-        title: "Link copiado!",
-        description: "Cole o link onde quiser compartilhar.",
-        duration: 2000,
-      });
-    });
-  };
-
-  const shareToSocial = (platform: 'whatsapp' | 'telegram' | 'facebook') => {
-    const url = encodeURIComponent(window.location.href);
-    const text = encodeURIComponent(`Contando os dias para: ${event?.name} ${event?.emoji}`);
-    
-    const shareUrls = {
-      whatsapp: `https://wa.me/?text=${text}%20${url}`,
-      telegram: `https://t.me/share/url?url=${url}&text=${text}`,
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}`
-    };
-    
-    window.open(shareUrls[platform], '_blank', 'width=600,height=400');
-  };
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center text-center text-muted-foreground">Carregando evento...</div>;
@@ -171,76 +132,13 @@ const Dashboard: React.FC = () => {
         </div>
       </main>
 
-      {/* Modal de opções de compartilhamento */}
-      {showShareOptions && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div 
-            className="absolute inset-0 bg-black/20 backdrop-blur-sm"
-            onClick={() => setShowShareOptions(false)}
-          />
-          <div className="relative bg-white rounded-2xl shadow-lg border border-gray-100 p-6 min-w-[280px] max-w-sm">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold text-gray-800">Compartilhar</h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowShareOptions(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-            <div className="space-y-3">
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  shareNative();
-                  setShowShareOptions(false);
-                }}
-                className="w-full justify-start h-12 rounded-lg hover:bg-gray-50 text-gray-700"
-              >
-                <Share className="w-4 h-4 mr-3" />
-                Compartilhar nativo
-              </Button>
-              
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  shareToSocial('whatsapp');
-                  setShowShareOptions(false);
-                }}
-                className="w-full justify-start h-12 rounded-lg hover:bg-gray-50 text-gray-700"
-              >
-                <MessageCircle className="w-4 h-4 mr-3" />
-                WhatsApp
-              </Button>
-              
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  shareToSocial('telegram');
-                  setShowShareOptions(false);
-                }}
-                className="w-full justify-start h-12 rounded-lg hover:bg-gray-50 text-gray-700"
-              >
-                <Send className="w-4 h-4 mr-3" />
-                Telegram
-              </Button>
-              
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  fallbackShare();
-                  setShowShareOptions(false);
-                }}
-                className="w-full justify-start h-12 rounded-lg hover:bg-gray-50 text-gray-700"
-              >
-                <Copy className="w-4 h-4 mr-3" />
-                Copiar link
-              </Button>
-            </div>
-          </div>
-        </div>
+      {/* Modal de compartilhamento com PIN */}
+      {event && (
+        <ShareModal 
+          event={event}
+          isOpen={showShareModal}
+          onClose={() => setShowShareModal(false)}
+        />
       )}
 
       {/* Modal de Gerenciar Eventos */}
@@ -286,10 +184,25 @@ const Dashboard: React.FC = () => {
                 </div>
               </div>
               
+              {/* Botão acessar evento com PIN */}
+              <Button
+                onClick={() => {
+                  setShowManageEvents(false);
+                  navigate('/acessar-pin');
+                }}
+                variant="outline"
+                className="w-full border-purple-200 text-purple-600 hover:bg-purple-50 font-semibold py-3 rounded-xl"
+              >
+                <Key className="w-4 h-4 mr-2" />
+                Acessar evento com PIN
+              </Button>
+              
               {/* Botão criar novo evento */}
               <Button
                 onClick={() => {
                   setShowManageEvents(false);
+                  // Forçar acesso ao formulário de criação
+                  localStorage.setItem("forceCreate", "true");
                   navigate('/criar');
                 }}
                 className="w-full bg-gradient-to-br from-purple-400 via-lavender-500 to-purple-600 text-white font-semibold py-3 rounded-xl hover:shadow-lg transition-all duration-300"

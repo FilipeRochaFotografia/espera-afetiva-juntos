@@ -136,15 +136,20 @@ export const EventCreator = ({ onEventCreate, mode = 'create', initialEvent }: E
     const eventDate = new Date(`${date}T${time}`);
     const themeName = selectedTheme.id === "other" && customTheme.trim() ? customTheme.trim() : selectedTheme.name;
     // Pega usuário autenticado
-    const { data: userData } = await supabase.auth.getUser();
+    const { data: userData, error: authError } = await supabase.auth.getUser();
+    console.log('EventCreator - Auth check:', { userData, authError });
+    
     const user = userData?.user;
     if (!user) {
+      console.error('EventCreator - Usuário não autenticado');
       toast({
         title: "Você precisa estar logado para criar um evento.",
         variant: "destructive"
       });
       return;
     }
+    
+    console.log('EventCreator - Usuário autenticado:', user.id, user.email);
 
     if (mode === 'edit' && initialEvent) {
       // Modo edição - atualizar evento existente
@@ -185,12 +190,17 @@ export const EventCreator = ({ onEventCreate, mode = 'create', initialEvent }: E
         custom_message: customMessage || "",
         created_by: user.id,
       };
+      
+      console.log('EventCreator - Criando evento:', event);
+      
       // Salvar no Supabase
       const { data, error } = await supabase
         .from("events")
         .insert([event])
         .select()
         .single();
+        
+      console.log('EventCreator - Resultado da criação:', { data, error });
       if (!error && data) {
         toast({
           title: "Evento criado com sucesso!",
@@ -217,8 +227,8 @@ export const EventCreator = ({ onEventCreate, mode = 'create', initialEvent }: E
         <p className="text-gray-600">
           {mode === 'edit' ? 'Modifique os detalhes da sua contagem regressiva' : (
             <>
-              Transforme cada segundo em uma<br />
-              experiência única!
+              Transforme cada segundo em<br />
+              uma experiência única!
             </>
           )}
         </p>

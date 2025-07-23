@@ -57,12 +57,12 @@ const Index = () => {
             </div>
             
             {/* Botão principal */}
-            <Button
-              className="w-full py-5 rounded-xl bg-gradient-to-br from-purple-400 via-lavender-500 to-purple-600 text-white font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-              onClick={() => navigate("/login")}
-            >
-              Começar agora
-            </Button>
+              <Button
+                className="w-full py-5 rounded-xl bg-gradient-to-br from-purple-400 via-lavender-500 to-purple-600 text-white font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                onClick={() => navigate("/login")}
+              >
+                Começar agora
+              </Button>
           </CardContent>
         </Card>
       </div>

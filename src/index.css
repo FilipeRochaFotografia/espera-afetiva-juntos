@@ -126,6 +126,20 @@ All colors MUST be HSL for design consistency
 
   body {
     @apply bg-background text-foreground;
+    /* Garantir que o fundo infinito da rolagem use a cor correta no PWA */
+    background-color: hsl(250 100% 98%);
+  }
+  
+  /* Para PWA - garantir fundo consistente */
+  html {
+    background-color: hsl(250 100% 98%);
+  }
+  
+  /* Para iOS Safari - viewport background */
+  @supports (-webkit-touch-callout: none) {
+    body {
+      background-color: hsl(250 100% 98%);
+    }
   }
 }
 

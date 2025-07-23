@@ -89,21 +89,21 @@ export default function Login() {
               console.log("Perfil não encontrado, criando manualmente...");
               // Criar perfil manualmente se o trigger falhou
               const { error: insertError } = await supabase
-                .from('users')
-                .insert({
-                  id: data.user.id,
-                  name: name,
-                  email: email,
-                  created_at: new Date().toISOString(),
-                  updated_at: new Date().toISOString()
-                });
-              
+              .from('users')
+              .insert({
+                id: data.user.id,
+                name: name,
+                email: email,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              });
+            
               if (insertError) {
                 console.error("Erro ao criar perfil manualmente:", insertError);
               } else {
                 console.log("Perfil criado manualmente com sucesso");
-              }
-            }
+          }
+        }
           }, 1000); // Aguardar 1 segundo para o trigger executar
         }
         
@@ -134,7 +134,7 @@ export default function Login() {
           navigate(`/dashboard/${latestEvent.id}`);
         } else {
           // Usuário não tem eventos, ir para criar evento
-          navigate("/criar");
+        navigate("/criar");
         }
       }
     }

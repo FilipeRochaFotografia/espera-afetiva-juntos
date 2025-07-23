@@ -7,6 +7,7 @@ export interface Event {
   custom_message: string;
   created_by?: string;
   is_active?: boolean;
+  pin?: string;
 }
 
 export interface User {

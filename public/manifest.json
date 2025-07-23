@@ -4,8 +4,8 @@
   "description": "Transforme a espera em conexão especial. Crie contagens regressivas emocionais e compartilhe momentos únicos com quem você ama.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ec4899",
+  "background_color": "#faf5ff",
+  "theme_color": "#faf5ff",
   "orientation": "portrait-primary",
   "icons": [
     {

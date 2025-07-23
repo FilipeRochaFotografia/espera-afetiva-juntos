@@ -6,44 +6,108 @@ import { Button } from "@/components/ui/button";
 import { Event } from "@/types/event";
 import { useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function CreateEvent() {
   const [createdEvent, setCreatedEvent] = useState<Event | null>(null);
   const [userEvents, setUserEvents] = useState<Event[]>([]);
-  const [user, setUser] = useState<{ name?: string; email: string } | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [hasCheckedEvents, setHasCheckedEvents] = useState(false);
   const navigate = useNavigate();
   const [lastEventId, setLastEventId] = useState<string | null>(null);
+  const { user, loading: authLoading, error: authError, isAuthenticated } = useAuth();
 
-  useEffect(() => {
-    const fetchUserAndEvents = async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      const userObj = userData?.user;
-      if (userObj) {
-        setUser({
-          name: userObj.user_metadata?.name,
-          email: userObj.email,
-        });
+    useEffect(() => {
+    // Aguardar autenticação carregar
+    if (authLoading) return;
+    
+    // Se não está autenticado, redirecionar para login
+    if (!isAuthenticated || !user) {
+      console.log('Usuário não autenticado, redirecionando para login');
+      navigate('/login');
+      return;
+    }
+    
+    // Evitar execução múltipla
+    if (hasCheckedEvents) {
+      console.log('Já verificou eventos, pulando...');
+      return;
+    }
+    
+    const fetchEvents = async () => {
+      try {
+        console.log('Buscando eventos para usuário:', user.id);
+        setHasCheckedEvents(true);
+        
         const { data, error } = await supabase
           .from("events")
           .select("*")
-          .eq("created_by", userObj.id)
+          .eq("created_by", user.id)
           .order("date", { ascending: true });
-        if (!error && data) setUserEvents(data as Event[]);
-        // Mostrar formulário direto sempre que acessar /criar
-        setShowForm(true);
+          
+        if (error) {
+          console.error('Erro ao buscar eventos:', error);
+        }
+        
+        if (data) {
+          setUserEvents(data as Event[]);
+          console.log('Eventos encontrados:', data.length);
+          
+          // Verificar se deve redirecionar ou mostrar formulário
+          const forceCreate = localStorage.getItem("forceCreate");
+          console.log('Force create flag:', forceCreate);
+          
+          if (data.length > 0 && !forceCreate) {
+            // Usuário tem eventos e não está forçando criação
+            const latestEvent = data[0];
+            console.log('Redirecionando para dashboard:', latestEvent.id);
+            navigate(`/dashboard/${latestEvent.id}`);
+            return;
+          } else if (forceCreate) {
+            // Usuário está forçando criação de novo evento
+            console.log('Forçando criação de novo evento');
+            localStorage.removeItem("forceCreate");
+            setShowForm(true);
+            return; // IMPORTANTE: retornar aqui para evitar execução adicional
+          } else {
+            // Usuário não tem eventos, mostrar formulário
+            console.log('Usuário não tem eventos, mostrando formulário');
+            setShowForm(true);
+          }
+        } else {
+          // Erro ou sem dados, mostrar formulário
+          console.log('Sem dados de eventos, mostrando formulário');
+          setShowForm(true);
+        }
+        
+        // Recupera último evento acessado do localStorage
+        const lastId = localStorage.getItem("lastEventId");
+        if (lastId) setLastEventId(lastId);
+        
+      } catch (error) {
+        console.error('Erro geral:', error);
+        navigate('/login');
       }
-      // Recupera último evento acessado do localStorage
-      const lastId = localStorage.getItem("lastEventId");
-      if (lastId) setLastEventId(lastId);
     };
-    fetchUserAndEvents();
-  }, []);
+    
+    fetchEvents();
+  }, [authLoading, isAuthenticated, user?.id, hasCheckedEvents, navigate]);
 
-  // Mostrar formulário direto quando acessar /criar
+  // useEffect separado para navegação
   useEffect(() => {
-    setShowForm(true);
-  }, []);
+    if (!authLoading && !isAuthenticated) {
+      navigate('/login');
+    }
+  }, [authLoading, isAuthenticated, navigate]);
+
+  // Resetar estado quando usuário mudar
+  useEffect(() => {
+    if (user?.id) {
+      resetState();
+    }
+  }, [user?.id]);
+
+
 
   // Sempre que acessar um evento, salve o id no localStorage
   const handleAccessEvent = (id: string) => {
@@ -75,6 +139,31 @@ export default function CreateEvent() {
     navigate("/login");
   };
 
+  // Função para resetar estado quando necessário
+  const resetState = () => {
+    setHasCheckedEvents(false);
+    setShowForm(false);
+    setCreatedEvent(null);
+  };
+
+  // Mostrar loading enquanto autenticação carrega
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-center text-muted-foreground">
+        Carregando...
+      </div>
+    );
+  }
+
+  // Mostrar erro de autenticação
+  if (authError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-center text-red-600">
+        Erro de autenticação: {authError}
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden">
       {/* Background com ampulheta */}
@@ -95,12 +184,29 @@ export default function CreateEvent() {
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="mb-6 w-full border-purple-200 text-purple-600 hover:bg-purple-50" 
+                className="mb-4 w-full border-purple-200 text-purple-600 hover:bg-purple-50" 
                 onClick={handleBackToEvent}
               >
                 ← Voltar para o evento
               </Button>
             )}
+            
+            {/* Botão voltar para dashboard se não há último evento */}
+            {!lastEventId && userEvents.length > 0 && !createdEvent && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="mb-4 w-full border-purple-200 text-purple-600 hover:bg-purple-50" 
+                onClick={() => {
+                  const latestEvent = userEvents[0];
+                  navigate(`/dashboard/${latestEvent.id}`);
+                }}
+              >
+                ← Voltar para eventos
+              </Button>
+            )}
+            
+
             
             {/* Formulário de criação de evento */}
             {!createdEvent && (

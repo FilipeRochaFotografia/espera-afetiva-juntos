@@ -11,6 +11,7 @@ import CreateEvent from "./pages/CreateEvent";
 import EditEvent from "./pages/EditEvent";
 import UnlockEvent from "./pages/UnlockEvent";
 import Dashboard from "./pages/Dashboard";
+import AccessByPin from "./pages/AccessByPin";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/editar/:id" element={<EditEvent />} />
           <Route path="/desbloquear/:id" element={<UnlockEvent />} />
           <Route path="/dashboard/:id" element={<Dashboard />} />
+          <Route path="/acessar-pin" element={<AccessByPin />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
