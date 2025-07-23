@@ -627,7 +627,7 @@ export const MuralCollaborativo = ({ event, isActive, showCreatePost: externalSh
 
       {/* Modal de Criação de Post */}
       <Dialog open={showCreatePost} onOpenChange={setShowCreatePost}>
-        <DialogContent className="max-w-sm p-6 rounded-2xl bg-white shadow-lg border border-gray-100">
+        <DialogContent className="max-w-sm max-h-[90vh] overflow-y-auto p-6 rounded-2xl bg-white shadow-lg border border-gray-100">
           <DialogHeader className="mb-6">
             <DialogTitle className="text-xl font-semibold text-gray-800">
               Criar um post
@@ -712,7 +712,7 @@ export const MuralCollaborativo = ({ event, isActive, showCreatePost: externalSh
                   <SimpleImage
                     src={newPost.mediaUrl}
                     alt="Preview"
-                    className="rounded-xl border border-gray-200"
+                    className="rounded-xl border border-gray-200 max-h-48 object-cover w-full"
                   />
                   <Button
                     type="button"
@@ -731,7 +731,7 @@ export const MuralCollaborativo = ({ event, isActive, showCreatePost: externalSh
             </div>
 
             {/* Botões de ação */}
-            <div className="pt-4">
+            <div className="pt-4 pb-2">
               <Button
                 onClick={handleCreatePost}
                 disabled={loading || (!newPost.content.trim() && !newPost.mediaUrl)}
@@ -751,7 +751,7 @@ export const MuralCollaborativo = ({ event, isActive, showCreatePost: externalSh
 
       {/* Modal de Edição de Post */}
       <Dialog open={!!editingPost} onOpenChange={() => setEditingPost(null)}>
-        <DialogContent className="max-w-sm p-6 rounded-2xl bg-white shadow-lg border border-gray-100">
+        <DialogContent className="max-w-sm max-h-[90vh] overflow-y-auto p-6 rounded-2xl bg-white shadow-lg border border-gray-100">
           <DialogHeader className="mb-6">
             <DialogTitle className="text-xl font-semibold text-gray-800">
               Editar post
@@ -779,7 +779,7 @@ export const MuralCollaborativo = ({ event, isActive, showCreatePost: externalSh
                   <SimpleImage
                     src={editingPost.mediaUrl}
                     alt="Current"
-                    className="rounded-xl border border-gray-200"
+                    className="rounded-xl border border-gray-200 max-h-48 object-cover w-full"
                   />
                   <Button
                     type="button"
@@ -795,7 +795,7 @@ export const MuralCollaborativo = ({ event, isActive, showCreatePost: externalSh
             )}
 
             {/* Botões de ação */}
-            <div className="flex gap-3 pt-4">
+            <div className="flex gap-3 pt-4 pb-2">
               <Button
                 onClick={handleEditPost}
                 disabled={loading || !editingPost?.content.trim()}

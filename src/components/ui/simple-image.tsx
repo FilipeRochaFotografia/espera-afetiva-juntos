@@ -34,7 +34,7 @@ export const SimpleImage: React.FC<SimpleImageProps> = ({
   return (
     <div 
       className={`relative overflow-hidden ${className}`}
-      style={{ aspectRatio: '4/5' }}
+      style={className.includes('max-h-') ? {} : { aspectRatio: '4/5' }}
     >
       {/* Loading placeholder */}
       {!isLoaded && !isError && (
