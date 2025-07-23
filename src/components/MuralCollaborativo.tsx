@@ -159,31 +159,60 @@ export const MuralCollaborativo = ({ event, isActive, showCreatePost: externalSh
   const fetchPosts = async () => {
     console.log('Buscando posts para evento:', event.id);
     
-    const { data, error } = await supabase
+    // Primeiro buscar os posts
+    const { data: postsData, error: postsError } = await supabase
       .from('mural_posts')
       .select(`
         *,
-        reactions:mural_reactions(*),
-        users:user_id(name, email)
+        reactions:mural_reactions(*)
       `)
       .eq('event_id', event.id)
       .order('created_at', { ascending: false });
 
-    if (!error && data) {
-      console.log('Posts encontrados:', data);
+    if (postsError) {
+      console.error('Erro ao buscar posts:', postsError);
+      return;
+    }
+
+    if (postsData && postsData.length > 0) {
+      console.log('Posts encontrados:', postsData);
+      
+      // Buscar dados dos usuários separadamente
+      const userIds = [...new Set(postsData.map(post => post.user_id))];
+      const { data: usersData, error: usersError } = await supabase
+        .from('users')
+        .select('id, name, email')
+        .in('id', userIds);
+
+      if (usersError) {
+        console.error('Erro ao buscar usuários:', usersError);
+      }
+
+      // Criar mapa de usuários para acesso rápido
+      const usersMap = new Map();
+      if (usersData) {
+        usersData.forEach(user => {
+          usersMap.set(user.id, user);
+        });
+      }
+
       // Adicionar informações do usuário de cada post
-      const postsWithUser = data.map(post => ({
-        ...post,
-        user: {
-          id: post.user_id,
-          name: post.users?.name || 'Usuário',
-          email: post.users?.email || '',
-          avatar_url: null
-        }
-      }));
+      const postsWithUser = postsData.map(post => {
+        const userData = usersMap.get(post.user_id);
+        return {
+          ...post,
+          user: {
+            id: post.user_id,
+            name: userData?.name || 'Usuário',
+            email: userData?.email || '',
+            avatar_url: null
+          }
+        };
+      });
+      
       setPosts(postsWithUser as Post[]);
     } else {
-      console.error('Erro ao buscar posts:', error);
+      setPosts([]);
     }
   };
 
