@@ -107,6 +107,7 @@ export default function Login() {
           }, 1000); // Aguardar 1 segundo para o trigger executar
         }
         
+        // Para novos usuários, sempre ir para criar evento
         navigate("/criar");
       }
     } else {
@@ -120,7 +121,21 @@ export default function Login() {
           setError("Erro ao fazer login. Tente novamente.");
         }
       } else {
-        navigate("/criar");
+        // Verificar se o usuário já tem eventos criados
+        const { data: eventsData } = await supabase
+          .from('events')
+          .select('id, name, is_active')
+          .eq('created_by', (await supabase.auth.getUser()).data.user?.id)
+          .order('created_at', { ascending: false });
+        
+        if (eventsData && eventsData.length > 0) {
+          // Usuário tem eventos, ir para dashboard do evento mais recente
+          const latestEvent = eventsData[0];
+          navigate(`/dashboard/${latestEvent.id}`);
+        } else {
+          // Usuário não tem eventos, ir para criar evento
+          navigate("/criar");
+        }
       }
     }
     

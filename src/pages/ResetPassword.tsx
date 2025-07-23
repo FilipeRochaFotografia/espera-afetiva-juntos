@@ -52,8 +52,22 @@ export default function ResetPassword() {
       setError("Erro ao atualizar senha. Tente novamente.");
     } else {
       setSuccess(true);
-      setTimeout(() => {
-        navigate("/criar");
+      setTimeout(async () => {
+        // Verificar se o usuário já tem eventos criados
+        const { data: eventsData } = await supabase
+          .from('events')
+          .select('id, name, is_active')
+          .eq('created_by', (await supabase.auth.getUser()).data.user?.id)
+          .order('created_at', { ascending: false });
+        
+        if (eventsData && eventsData.length > 0) {
+          // Usuário tem eventos, ir para dashboard do evento mais recente
+          const latestEvent = eventsData[0];
+          navigate(`/dashboard/${latestEvent.id}`);
+        } else {
+          // Usuário não tem eventos, ir para criar evento
+          navigate("/criar");
+        }
       }, 2000);
     }
 
