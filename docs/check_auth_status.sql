@@ -6,14 +6,24 @@
 -- ========================================
 
 -- Verificar sessões ativas (apenas para admin)
+-- Nota: A tabela auth.sessions pode ter estrutura diferente
+-- Vamos verificar primeiro a estrutura da tabela
+SELECT 
+  column_name,
+  data_type,
+  is_nullable
+FROM information_schema.columns 
+WHERE table_name = 'sessions' 
+AND table_schema = 'auth'
+ORDER BY ordinal_position;
+
+-- Tentar verificar sessões com colunas que existem
 SELECT 
   id,
   user_id,
   created_at,
-  expires_at,
-  not_after
+  updated_at
 FROM auth.sessions 
-WHERE expires_at > NOW()
 ORDER BY created_at DESC
 LIMIT 10;
 
@@ -167,4 +177,30 @@ SELECT
   rowsecurity
 FROM pg_tables 
 WHERE tablename IN ('users', 'events', 'mural_posts', 'mural_reactions')
-ORDER BY tablename; 
+ORDER BY tablename;
+
+-- ========================================
+-- 12. VERIFICAR ESTRUTURA DAS TABELAS
+-- ========================================
+
+-- Verificar estrutura da tabela auth.sessions
+SELECT 
+  column_name,
+  data_type,
+  is_nullable,
+  column_default
+FROM information_schema.columns 
+WHERE table_name = 'sessions' 
+AND table_schema = 'auth'
+ORDER BY ordinal_position;
+
+-- Verificar estrutura da tabela auth.users
+SELECT 
+  column_name,
+  data_type,
+  is_nullable,
+  column_default
+FROM information_schema.columns 
+WHERE table_name = 'users' 
+AND table_schema = 'auth'
+ORDER BY ordinal_position; 
