@@ -163,21 +163,22 @@ export const MuralCollaborativo = ({ event, isActive, showCreatePost: externalSh
       .from('mural_posts')
       .select(`
         *,
-        reactions:mural_reactions(*)
+        reactions:mural_reactions(*),
+        users:user_id(name, email)
       `)
       .eq('event_id', event.id)
       .order('created_at', { ascending: false });
 
     if (!error && data) {
       console.log('Posts encontrados:', data);
-      // Adicionar informações do usuário localmente
+      // Adicionar informações do usuário de cada post
       const postsWithUser = data.map(post => ({
         ...post,
         user: {
           id: post.user_id,
-          name: user?.name || 'Usuário',
-          email: user?.email || '',
-          avatar_url: user?.avatar_url
+          name: post.users?.name || 'Usuário',
+          email: post.users?.email || '',
+          avatar_url: null
         }
       }));
       setPosts(postsWithUser as Post[]);
