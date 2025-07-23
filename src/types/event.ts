@@ -4,7 +4,7 @@ export interface Event {
   date: Date;
   emoji: string;
   theme: string;
-  custom_message?: string;
+  custom_message: string;
   created_by?: string;
   is_active?: boolean;
 }

@@ -419,9 +419,6 @@ export const MuralCollaborativo = ({ event, isActive, showCreatePost: externalSh
       >
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-            <div className="w-8 h-8 bg-gradient-to-br from-purple-400 via-lavender-500 to-purple-600 rounded-full flex items-center justify-center">
-              <MessageCircle className="w-4 h-4 text-white" />
-            </div>
             <div>
               <div className="font-semibold text-purple-800">Mural Colaborativo</div>
               <div className="text-xs text-purple-500 font-medium">Ative para desbloquear</div>
@@ -472,7 +469,6 @@ export const MuralCollaborativo = ({ event, isActive, showCreatePost: externalSh
       <Card className="shadow-lg border-purple-100/30 bg-gradient-to-br from-white/95 to-purple-25/80 backdrop-blur-sm">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-            <MessageCircle className="w-4 h-4 text-purple-600" />
             Mural Colaborativo
           </CardTitle>
         </CardHeader>
@@ -481,8 +477,7 @@ export const MuralCollaborativo = ({ event, isActive, showCreatePost: externalSh
             onClick={() => setShowCreatePost(true)}
             className="w-full bg-gradient-to-br from-purple-400 via-lavender-500 to-purple-600 text-white font-semibold hover:shadow-glow transition-all"
           >
-            <MessageCircle className="w-4 h-4 mr-2" />
-            Adicionar ao mural
+            Criar um post
           </Button>
         </CardContent>
       </Card>
@@ -552,34 +547,31 @@ export const MuralCollaborativo = ({ event, isActive, showCreatePost: externalSh
                 </div>
 
                 {/* Reações */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 mt-2">
                   <div className="flex gap-1">
                     {reactionEmojis.map((emoji) => {
                       const hasReacted = post.reactions?.some(r => r.user_id === user?.id && r.emoji === emoji);
+                      const reactionCount = post.reactions?.filter(r => r.emoji === emoji).length || 0;
                       return (
                         <button
                           key={emoji}
                           onClick={() => handleReaction(post.id, emoji)}
-                          className={`p-1 rounded transition-all duration-75 ${
+                          className={`p-1.5 rounded-full transition-all duration-200 ${
                             hasReacted 
-                              ? 'bg-purple-50 text-purple-500 scale-110' 
-                              : 'hover:bg-muted hover:scale-105'
+                              ? 'bg-purple-100 scale-110' 
+                              : 'hover:bg-purple-50 hover:scale-105'
                           }`}
                           style={{
-                            animation: hasReacted ? 'heartBeat 0.4s ease-in-out' : 'none'
+                            animation: hasReacted ? 'reactionPop 0.4s ease-out' : 'none'
                           }}
                           title={`Reagir com ${emoji}`}
                         >
-                          {emoji}
+                          <span className="text-base">{emoji}</span>
                         </button>
                       );
                     })}
                   </div>
-                  {post.reactions && post.reactions.length > 0 && (
-                    <div className="text-xs text-muted-foreground">
-                      {post.reactions.length}
-                    </div>
-                  )}
+
                 </div>
               </CardContent>
             </Card>
@@ -608,7 +600,7 @@ export const MuralCollaborativo = ({ event, isActive, showCreatePost: externalSh
         <DialogContent className="max-w-sm p-6 rounded-2xl bg-white shadow-lg border border-gray-100">
           <DialogHeader className="mb-6">
             <DialogTitle className="text-xl font-semibold text-gray-800">
-              Adicionar ao mural
+              Criar um post
             </DialogTitle>
           </DialogHeader>
           

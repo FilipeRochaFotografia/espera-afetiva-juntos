@@ -114,6 +114,9 @@ CREATE POLICY "Users can delete their own reactions" ON mural_reactions
 CREATE POLICY "Users can view other users" ON users
   FOR SELECT USING (true);
 
+CREATE POLICY "Users can insert their own profile" ON users
+  FOR INSERT WITH CHECK (id = auth.uid());
+
 CREATE POLICY "Users can update their own profile" ON users
   FOR UPDATE USING (id = auth.uid());
 
@@ -126,9 +129,15 @@ BEGIN
     NEW.id,
     COALESCE(NEW.raw_user_meta_data->>'name', 'Usuário'),
     NEW.email,
-    NEW.raw_user_meta_data->>'avatar_url'
-  );
+    COALESCE(NEW.raw_user_meta_data->>'avatar_url', NULL)
+  )
+  ON CONFLICT (id) DO NOTHING;
   RETURN NEW;
+EXCEPTION
+  WHEN OTHERS THEN
+    -- Log do erro mas não falhar o cadastro
+    RAISE WARNING 'Erro ao criar perfil do usuário: %', SQLERRM;
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 

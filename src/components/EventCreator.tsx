@@ -59,10 +59,80 @@ export const EventCreator = ({ onEventCreate, mode = 'create', initialEvent }: E
   const [customTheme, setCustomTheme] = useState(initialEvent?.theme && !themes.find(t => t.name === initialEvent.theme) ? initialEvent.theme : "");
   const [selectedEmoji, setSelectedEmoji] = useState(initialEvent?.emoji || "🤍");
   const [customMessage, setCustomMessage] = useState(initialEvent?.custom_message || "");
+  const [dateError, setDateError] = useState<string | null>(null);
+
+  // Função para validar se a data é válida
+  const validateEventDate = (selectedDate: string, selectedTime: string): { isValid: boolean; error?: string } => {
+    if (!selectedDate || !selectedTime) {
+      return { isValid: false, error: "Data e horário são obrigatórios" };
+    }
+
+    const eventDate = new Date(`${selectedDate}T${selectedTime}`);
+    const now = new Date();
+    
+    // Verificar se a data é no passado
+    if (eventDate <= now) {
+      return { isValid: false, error: "A data do evento não pode ser no passado" };
+    }
+    
+    // Verificar se a data é muito próxima (menos de 1 hora)
+    const oneHourFromNow = new Date(now.getTime() + 60 * 60 * 1000); // 1 hora
+    if (eventDate <= oneHourFromNow) {
+      return { isValid: false, error: "O evento deve ser pelo menos 1 hora no futuro" };
+    }
+    
+    return { isValid: true };
+  };
+
+  // Função para obter a data mínima (hoje)
+  const getMinDate = (): string => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  };
+
+  // Função para obter o horário mínimo (1 hora a partir de agora)
+  const getMinTime = (): string => {
+    const oneHourFromNow = new Date(Date.now() + 60 * 60 * 1000);
+    return oneHourFromNow.toTimeString().slice(0, 5);
+  };
+
+  // Função para validar data em tempo real
+  const handleDateChange = (newDate: string) => {
+    setDate(newDate);
+    if (newDate && time) {
+      const validation = validateEventDate(newDate, time);
+      setDateError(validation.isValid ? null : validation.error || null);
+    } else {
+      setDateError(null);
+    }
+  };
+
+  // Função para validar hora em tempo real
+  const handleTimeChange = (newTime: string) => {
+    setTime(newTime);
+    if (date && newTime) {
+      const validation = validateEventDate(date, newTime);
+      setDateError(validation.isValid ? null : validation.error || null);
+    } else {
+      setDateError(null);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !date || !time) return;
+    
+    // Validar data e horário
+    const validation = validateEventDate(date, time);
+    if (!validation.isValid) {
+      toast({
+        title: "Data inválida",
+        description: validation.error,
+        variant: "destructive"
+      });
+      return;
+    }
+    
     const eventDate = new Date(`${date}T${time}`);
     const themeName = selectedTheme.id === "other" && customTheme.trim() ? customTheme.trim() : selectedTheme.name;
     // Pega usuário autenticado
@@ -85,7 +155,7 @@ export const EventCreator = ({ onEventCreate, mode = 'create', initialEvent }: E
           date: eventDate,
           emoji: selectedEmoji,
           theme: themeName,
-          custom_message: customMessage || undefined,
+          custom_message: customMessage || "",
         })
         .eq("id", initialEvent.id)
         .select()
@@ -112,7 +182,7 @@ export const EventCreator = ({ onEventCreate, mode = 'create', initialEvent }: E
         date: eventDate,
         emoji: selectedEmoji,
         theme: themeName,
-        custom_message: customMessage || undefined,
+        custom_message: customMessage || "",
         created_by: user.id,
       };
       // Salvar no Supabase
@@ -177,7 +247,8 @@ export const EventCreator = ({ onEventCreate, mode = 'create', initialEvent }: E
                     id="event-date"
                     type="date"
                     value={date}
-                    onChange={(e) => setDate(e.target.value)}
+                    min={getMinDate()}
+                    onChange={(e) => handleDateChange(e.target.value)}
                     className="w-full border-gray-300 focus:border-purple-400 focus:ring-0 focus:outline-none rounded-lg pr-10 cursor-pointer shadow-sm"
                   />
                   <CalendarIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
@@ -190,13 +261,24 @@ export const EventCreator = ({ onEventCreate, mode = 'create', initialEvent }: E
                     id="event-time"
                     type="time"
                     value={time}
-                    onChange={(e) => setTime(e.target.value)}
+                    min={getMinTime()}
+                    onChange={(e) => handleTimeChange(e.target.value)}
                     className="w-full border-gray-300 focus:border-purple-400 focus:ring-0 focus:outline-none rounded-lg pr-10 cursor-pointer shadow-sm"
                   />
                   <Clock className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                 </div>
               </div>
             </div>
+            
+            {/* Mensagem de erro da data */}
+            {dateError && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <p className="text-sm text-red-600 flex items-center">
+                  <span className="mr-2">⚠️</span>
+                  {dateError}
+                </p>
+              </div>
+            )}
             <div className="space-y-3">
               <Label className="text-sm font-medium text-gray-700">Escolha o tema do seu momento</Label>
               <div className="grid grid-cols-2 gap-3 md:grid-cols-2">
@@ -269,7 +351,7 @@ export const EventCreator = ({ onEventCreate, mode = 'create', initialEvent }: E
               type="submit"
               size="lg"
               className="w-full py-4 rounded-xl bg-gradient-to-br from-purple-400 via-lavender-500 to-purple-600 text-white font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={!name || !date || !time || (selectedTheme.id === 'other' && !customTheme.trim())}
+              disabled={!name || !date || !time || (selectedTheme.id === 'other' && !customTheme.trim()) || !!dateError}
             >
               <CalendarIcon className="w-5 h-5 mr-2" />
               {mode === 'edit' ? 'Atualizar Evento' : 'Criar Contagem Regressiva'}

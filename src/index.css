@@ -147,3 +147,16 @@ All colors MUST be HSL for design consistency
     transform: scale(1);
   }
 }
+
+/* Animação simples para reações */
+@keyframes reactionPop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1.1);
+  }
+}

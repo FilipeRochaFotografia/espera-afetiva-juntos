@@ -72,26 +72,39 @@ export default function Login() {
           return;
         }
         
-        // Se o usuário foi criado e confirmado, inserir na tabela users
+        // O trigger handle_new_user() deve criar automaticamente o perfil
+        // Se o usuário foi criado com sucesso, navegar para criar evento
         if (data.user) {
-          try {
-            const { error: profileError } = await supabase
+          console.log("Usuário criado com sucesso:", data.user.id);
+          
+          // Verificar se o perfil foi criado na tabela users
+          setTimeout(async () => {
+            const { data: profileData, error: profileError } = await supabase
               .from('users')
-              .insert({
-                id: data.user.id,
-                name: name,
-                email: email,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-              });
+              .select('*')
+              .eq('id', data.user.id)
+              .single();
             
-            if (profileError) {
-              console.error("Erro ao criar perfil:", profileError);
-              // Se der erro no perfil, ainda podemos continuar
+            if (profileError || !profileData) {
+              console.log("Perfil não encontrado, criando manualmente...");
+              // Criar perfil manualmente se o trigger falhou
+              const { error: insertError } = await supabase
+                .from('users')
+                .insert({
+                  id: data.user.id,
+                  name: name,
+                  email: email,
+                  created_at: new Date().toISOString(),
+                  updated_at: new Date().toISOString()
+                });
+              
+              if (insertError) {
+                console.error("Erro ao criar perfil manualmente:", insertError);
+              } else {
+                console.log("Perfil criado manualmente com sucesso");
+              }
             }
-          } catch (profileError) {
-            console.error("Erro ao criar perfil:", profileError);
-          }
+          }, 1000); // Aguardar 1 segundo para o trigger executar
         }
         
         navigate("/criar");

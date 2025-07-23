@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -150,59 +150,43 @@ export default function UnlockEvent() {
 
         <Card className="bg-white/95 backdrop-blur-sm border border-purple-100/50 shadow-xl rounded-3xl overflow-hidden">
           <CardContent className="p-8 text-center">
-            {/* Ícone/Ilustração central */}
-            <div className="relative mb-6">
-              <div className="w-20 h-20 mx-auto bg-gradient-to-br from-purple-400 via-lavender-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
-                <div className="text-3xl">{event.emoji}</div>
-              </div>
-              {/* Aura/glow effect */}
-              <div className="absolute inset-0 w-20 h-20 mx-auto bg-gradient-to-br from-purple-400/30 via-lavender-500/30 to-purple-600/30 rounded-full blur-xl animate-pulse"></div>
-            </div>
-
-            {/* Título principal */}
-            <h1 className="text-2xl font-bold mb-2 text-purple-800">
-              Ativar {event.name}
-            </h1>
-            
-            {/* Descrição */}
-            <p className="text-gray-600 mb-6 leading-relaxed">
-              Desbloqueie o mural colaborativo e transforme a espera em uma experiência compartilhada
-            </p>
-
-            {/* Preview do evento */}
-            <div className="bg-purple-50 border-2 border-purple-200 rounded-xl p-6 mb-6 text-center">
-              <div className="text-4xl mb-3">{event.emoji}</div>
-              <h3 className="text-lg font-bold text-purple-800 mb-2">{event.name}</h3>
-              <p className="text-sm text-gray-600 mb-2">
-                {new Date(event.date).toLocaleDateString('pt-BR', {
-                  day: '2-digit',
-                  month: 'long',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
-              </p>
-              {event.custom_message && (
-                <p className="text-sm italic text-gray-600">"{event.custom_message}"</p>
-              )}
-            </div>
-
-            
-
-            {/* Tela de ativação */}
+            {/* Conteúdo condicional baseado no estado */}
             {showCongrats ? (
+              // Tela de parabéns - sem ícone/título de ativação
               <div className="space-y-6">
-                <div className="text-center space-y-2">
-                  <div className="w-16 h-16 mx-auto bg-gradient-to-br from-purple-400 via-lavender-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg mb-4">
-                    <div className="text-3xl">🎉</div>
+                {/* Mensagem de parabéns */}
+                <div className="text-center space-y-4">
+                  <div className="w-20 h-20 mx-auto bg-gradient-to-br from-purple-400 via-lavender-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
+                    <div className="text-4xl">🎉</div>
                   </div>
-                  <h2 className="text-xl font-bold text-purple-800">
-                    Parabéns! Seu mural foi ativado
+                  <h2 className="text-2xl font-bold text-purple-800">
+                    Parabéns!<br />
+                    Seu mural foi ativado
                   </h2>
-                  <p className="text-sm text-gray-600 px-2">
+                  <p className="text-gray-600 leading-relaxed">
                     Agora você pode compartilhar o evento e trocar mensagens, fotos e reações com seus convidados.
                   </p>
                 </div>
+
+                {/* Preview do evento */}
+                <div className="bg-purple-50 border-2 border-purple-200 rounded-xl p-6 text-center">
+                  <div className="text-4xl mb-3">{event.emoji}</div>
+                  <h3 className="text-lg font-bold text-purple-800 mb-2">{event.name}</h3>
+                  <p className="text-sm text-gray-600 mb-2">
+                    {new Date(event.date).toLocaleDateString('pt-BR', {
+                      day: '2-digit',
+                      month: 'long',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </p>
+                  {event.custom_message && (
+                    <p className="text-sm italic text-gray-600">"{event.custom_message}"</p>
+                  )}
+                </div>
+
+                {/* Botão de ação */}
                 <Button 
                   size="lg" 
                   className="w-full py-4 rounded-xl bg-gradient-to-br from-purple-400 via-lavender-500 to-purple-600 text-white font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105" 
@@ -212,7 +196,27 @@ export default function UnlockEvent() {
                 </Button>
               </div>
             ) : (
+              // Tela de ativação - com ícone/título de ativação
               <div className="space-y-6">
+                {/* Ícone/Ilustração central */}
+                <div className="relative mb-6">
+                  <div className="w-20 h-20 mx-auto bg-gradient-to-br from-purple-400 via-lavender-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
+                    <div className="text-3xl">{event.emoji}</div>
+                  </div>
+                  {/* Aura/glow effect */}
+                  <div className="absolute inset-0 w-20 h-20 mx-auto bg-gradient-to-br from-purple-400/30 via-lavender-500/30 to-purple-600/30 rounded-full blur-xl animate-pulse"></div>
+                </div>
+
+                {/* Título principal */}
+                <h1 className="text-2xl font-bold mb-2 text-purple-800">
+                  Ativar {event.name}
+                </h1>
+                
+                {/* Descrição */}
+                <p className="text-gray-600 mb-6 leading-relaxed">
+                  Desbloqueie o mural colaborativo e transforme a espera em uma experiência compartilhada
+                </p>
+
                 {/* Valor e benefícios */}
                 <div className="text-center space-y-3">
                   <p className="text-sm text-gray-700">
