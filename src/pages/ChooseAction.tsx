@@ -71,7 +71,7 @@ export default function ChooseAction() {
 
             {/* Título principal */}
             <h1 className="text-2xl font-bold mb-2 text-purple-800">
-              {hasEvents ? "O que você gostaria de fazer?" : "Bem-vindo ao WeCount! 🎉"}
+              {hasEvents ? "O que você gostaria de fazer?" : "Bem-vindo ao WeCount!"}
             </h1>
             
             {/* Descrição */}
